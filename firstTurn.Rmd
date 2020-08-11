@@ -1,0 +1,93 @@
+---
+title: "Brave Rats Analysis"
+author: "William Medwid"
+date: "8/10/2020"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+---
+
+
+## First turn analysis based on human data
+
+Welcome to an analysis of Brave Rats statistics, with real data collected from real players. As of writing this commentary, I have recorded 35 games, mostly but not always with myself as one of the players. After removing one tied game, this gives a total of 68 opening moves to analyze. The first turn, as in many games, is very important yet very abstract and hard to make concrete statements about as it is so far removed from the end state of the game. This analysis will attempt to provide some data-driven guidance to this stage of play.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, echo=FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(stringr)
+```
+
+```{r data}
+columnNames = c("Game #","Player 1","Player 2","P2 wins?","P1 Card 1","P2 Card 1","P1 Card 2","P2 Card 2","P1 Card 3","P2 Card 3","P1 Card 4","P2 Card 4","P1 Card 5","P2 Card 5","P1 Card 6","P2 Card 6","P1 Card 7","P2 Card 7","P1 Card 8","P2 Card 8") %>% str_replace_all("[ #?]", "")
+ratData <- read_csv("Brave Rats Data - Record.csv", skip_empty_rows = TRUE, col_names = columnNames, skip=1)%>% 
+  select(P2wins, P1Card1, P2Card1)
+```
+
+```{r}
+notFlipped <- ratData %>% 
+  mutate(P1Wins = abs(P2wins-1), P1Card = ratData$P1Card1, P2Card = ratData$P2Card1) %>% select(P1Wins, P1Card, P2Card)
+
+flipped <- ratData %>% 
+  mutate(P1Wins = P2wins, P1Card = ratData$P2Card1, P2Card = ratData$P1Card1) %>% select(P1Wins, P1Card, P2Card)
+
+
+fullSet <- rbind(notFlipped, flipped) %>% filter(P1Wins != 0.5) %>% mutate(Outcome = ifelse(
+  P1Wins==1, "Win", "Loss"
+))
+```
+
+First, and most basically, it's important to know what cards people actually play to start. This information even on its own may be able to greatly inform starting decisions.
+
+```{r}
+fullSet %>% 
+  ggplot(aes(x=P1Card %>% as_factor())) +
+  geom_histogram(stat="count") +
+  xlab("Card")
+```
+
+The clear trend is that only 3 cards, Spy(2), Assassin(3), and Ambassador(4) are by far the preferred starting cards. Spy(2) being the most common and Wizard(5) being somewhat popular are the main notes here. 
+
+Now, let's take a look at each card's win rate.
+
+```{r include=FALSE}
+fullSet %>% 
+  group_by(P1Card, Outcome) %>% 
+  tally() %>% 
+  pivot_wider(names_from=Outcome, values_from=n, values_fill=0) %>% 
+  mutate(winRate=Win/(Win+Loss))
+```
+
+```{r}
+fullSet %>% 
+  ggplot(aes(x=P1Card %>% as_factor(), fill=Outcome)) +
+  geom_histogram(position="fill", stat="count") +
+  xlab("Card") +
+  ylab("Win Rate") +
+  ggtitle("Win rates by card")
+```
+
+Other than the single instance in which Princess(1) was played, Spy(2) comes out on top as the only card above the 50% line, at a whopping 73% win rate. The Wizard(5) ended up nearly as well, with a 40% win rate. This could spark interest in using them more often, but for the rest of this inquiry, because of their small sample size, all games where non-standard (2,3,4) cards were played will be excluded. 
+
+```{r}
+mainSet <- fullSet %>% 
+  filter(P1Card %in% c(2,3,4) & P2Card %in% c(2,3,4))
+```
+
+```{r}
+mainSet %>% 
+  mutate(P2Card=factor(P2Card, levels=c("4","3","2"))) %>% 
+  ggplot(aes(x=Outcome, fill=Outcome)) +
+  geom_bar(aes(stat="count")) +
+  facet_grid(vars(P2Card), vars(P1Card), switch="both") +
+  ylab("Opponent's Card") +
+  xlab("Your Card")+
+  theme(axis.text.x = element_blank())
+```
+
+This last graph may be somewhat jarring, so I'll explain how to read it. On the X is what card you picked, and on the Y is the card your opponent picked. At each intersection is a small plot, showing the history of wins and losses in games that started that way. Immediately apparent is one of the major reasons why the Spy(2) has been so successful. In games against Assassin(3), the Spy(2) player has won 6 out of 6 times. Also surprisingly, even in what seems to be an extremely favorable situation of playing Ambassador(4) against Spy(2), thereby gaining 2 victories, the Spy player has actually won 4 out of the 7 games. 
+
+Of course, with sample sizes this small after dividing up every common matchup, nothing is proven. Assassin(3) obviously won't win against Spy(2) 100% of the time, and it's entirely possible that some of these ratios would look quite different after sufficient trials. Nevertheless, I hope this can inform better strategies to test these conclusions in the field of battle.
