@@ -70,7 +70,7 @@ fullSet %>%
   ggtitle("Win rates by card")
 ```
 
-Other than the single instance in which Princess(1) was played, Spy(2) comes out on top as the only card above the 50% line, at a whopping 73% win rate. The Wizard(5) ended up nearly as well, with a 40% win rate. This could spark interest in using them more often, but for the rest of this inquiry, because of their small sample size, all games where non-standard (2,3,4) cards were played will be excluded. 
+Other than the single instance in which Princess(1) was played, Spy(2) comes out on top as the only card above the 50% line, at a whopping 73% win rate. The Wizard(5) ended up nearly as well as the Assassin(3) and Ambassador(4), with a 40% win rate. This could spark interest in using them more often, but for the rest of this inquiry, because of their small sample size, all games where non-standard (2,3,4) cards were played will be excluded. 
 
 ```{r}
 mainSet <- fullSet %>% 
