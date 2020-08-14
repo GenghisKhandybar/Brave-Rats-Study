@@ -2,9 +2,9 @@
 title: "Brave Rats Analysis"
 author: "William Medwid"
 date: "8/10/2020"
-output:
-  prettydoc::html_pretty:
-    theme: cayman
+output: 
+  pdf_document:
+    highlight: tango
 ---
 
 
@@ -13,7 +13,7 @@ output:
 Welcome to an analysis of Brave Rats statistics, with real data collected from real players. As of writing this commentary, I have recorded 35 games, mostly but not always with myself as one of the players. After removing one tied game, this gives a total of 68 opening moves to analyze. The first turn, as in many games, is very important yet very abstract and hard to make concrete statements about as it is so far removed from the end state of the game. This analysis will attempt to provide some data-driven guidance to this stage of play.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, echo=FALSE)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo=FALSE)
 ```
 
 ```{r}
@@ -89,5 +89,7 @@ mainSet %>%
 ```
 
 This last graph may be somewhat jarring, so I'll explain how to read it. On the X is what card you picked, and on the Y is the card your opponent picked. At each intersection is a small plot, showing the history of wins and losses in games that started that way. Immediately apparent is one of the major reasons why the Spy(2) has been so successful. In games against Assassin(3), the Spy(2) player has won 6 out of 6 times. Also surprisingly, even in what seems to be an extremely favorable situation of playing Ambassador(4) against Spy(2), thereby gaining 2 victories, the Spy player has actually won 4 out of the 7 games. 
+
+Further analysis such as a recommended distribution of cards to play based on matchup win rates would be possible but because Spy(2) has favorable matchups in every case, the current analysis of the first turn must end here.
 
 Of course, with sample sizes this small after dividing up every common matchup, nothing is proven. Assassin(3) obviously won't win against Spy(2) 100% of the time, and it's entirely possible that some of these ratios would look quite different after sufficient trials. Nevertheless, I hope this can inform better strategies to test these conclusions in the field of battle.
